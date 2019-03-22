@@ -17,7 +17,7 @@ def card_balance():
     return jsonify(c.get_balance())
 
 
-@app.route("/card/recharge", method=['POST'])
+@app.route("/card/recharge", methods=['POST'])
 def card_recharge():
     amount = float(request.form['amount'])
     username = request.form['username']
