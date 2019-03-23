@@ -36,10 +36,11 @@ def card_net_balance():
 
 @app.route('/card/recharge_net', methods=['POST'])
 def card_recharge_net():
+    amount = float(request.form['amount'])
     username = request.form['username']
     password = request.form['password']
     c = Card(username, password)
-    return jsonify(c.recharge_net())
+    return jsonify(c.recharge_net(amount=amount))
 
 
 if __name__ == "__main__":
