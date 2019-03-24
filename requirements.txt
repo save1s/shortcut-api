@@ -14,7 +14,7 @@ jinja2==2.10
 leancloud==2.1.10
 lxml==4.3.2
 markupsafe==1.1.1
-njupt==0.2.0
+njupt==0.2.1
 pillow==5.4.1
 python-dateutil==2.8.0
 pytz==2018.7
