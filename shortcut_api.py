@@ -20,9 +20,10 @@ def data_acccess(f):
             #     raise Exception
             return f()
         except AuthenticationException:
-            return jsonify({'success': False, 'message':'账号或密码有误','data':{}})
+            return jsonify({'success': False, 'message': '账号或密码有误', 'data': {}})
         except Exception as e:
-            return jsonify({'success': False, 'message':e,'data':{}})
+            return jsonify({'success': False, 'message': e, 'data': {}})
+
     return wrapper
 
 
@@ -55,6 +56,40 @@ def card_net_balance():
 def card_recharge_net():
     amount = float(request.form['amount'])
     return jsonify(request.card.recharge_net(amount=amount))
+
+
+@app.route('/card/recharge_elec', methods=['POST'])
+@data_acccess
+def card_recharge_elec():
+    amount = float(request.form['amount'])
+    school_area = request.form['school_area']
+    building = request.form['building']
+    big_room_id = int(request.form['big_room_id'])
+    small_room_id = int(request.form['small_room_id'])
+    if school_area == "三牌楼":
+        result = request.card.recharge_sanpailou_elec(
+            amount=amount,
+            building_name=building,
+            room_id="{}{}".format(big_room_id, small_room_id)
+        )
+        return jsonify({
+            'success': result['success'],
+            'data': {},
+            'message': result['msg'],
+        })
+    if school_area == "仙林":
+        result = request.card.recharge_xianlin_elec(
+            amount=amount,
+            building_name=building,
+            big_room_id=big_room_id,
+            small_room_id=small_room_id
+        )
+        return jsonify({
+            'success': result['success'],
+            'data': {},
+            'message': result['msg'],
+        })
+    return jsonify({'success': False, 'message': '错误的校区', 'data': {}})
 
 
 @app.route('/zhengfang/courses', methods=['POST'])
