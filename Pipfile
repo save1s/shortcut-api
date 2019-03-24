@@ -11,6 +11,7 @@ pytz = "==2018.7"
 njupt = "*"
 flask = "*"
 requests = "*"
+leancloud = "*"
 
 [dev-packages]
 

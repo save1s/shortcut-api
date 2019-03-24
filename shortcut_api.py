@@ -4,9 +4,9 @@ from njupt import Card
 app = Flask(__name__)
 
 
-@app.route("/test")
+@app.route("/")
 def test():
-    return "hello"
+    return "A save1s.com project."
 
 
 @app.route("/card/balance", methods=['POST'])
