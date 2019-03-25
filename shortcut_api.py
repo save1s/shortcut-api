@@ -1,9 +1,30 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 from njupt import Card, Zhengfang
 from njupt.exceptions import AuthenticationException
 from functools import wraps
+from icalendar import Calendar, Event
+import pendulum
+import json
+
+term_start_date = pendulum.datetime(2019, 2, 18, tz='Asia/Shanghai')
 
 app = Flask(__name__)
+
+
+ClassTime = {
+    1 :  term_start_date.add(hours = 8),
+    2 :  term_start_date.add(hours = 8, minutes = 50),
+    3 :  term_start_date.add(hours = 9, minutes = 50),
+    4 :  term_start_date.add(hours = 10, minutes = 40),
+    5 :  term_start_date.add(hours = 11, minutes = 30),
+    6 :  term_start_date.add(hours = 13, minutes = 45),
+    7 :  term_start_date.add(hours = 14, minutes = 35),
+    8 :  term_start_date.add(hours = 15, minutes = 35),
+    9 :  term_start_date.add(hours = 16, minutes = 25),
+    10 :  term_start_date.add(hours = 18, minutes = 30),
+    11 :  term_start_date.add(hours = 19, minutes = 25),
+    12 :  term_start_date.add(hours = 20, minutes = 20),
+}
 
 
 def data_acccess(f):
@@ -101,9 +122,38 @@ def zhengfang_courses():
 @app.route('/zhengfang/courses/ical', methods=['POST'])
 @data_acccess
 def zhengfang_courses_ical():
-    # todo
-    pass
-
+    courses = request.zhengfang.get_courses()
+    cal = Calendar()
+    cal.add('prodid', '-//save1s.com//NJUPT Calendar//')
+    cal.add('version', '1.0')
+    for course in courses:
+        class_start_time = ClassTime.get(course['class_start'], 1) \
+                                    .add(days = course['day'] - 1) \
+                                    .add(weeks = course['week_start'] - 1)
+        class_end_time = ClassTime.get(course['class_end'], 2) \
+                                    .add(days = course['day'] - 1) \
+                                    .add(weeks = course['week_start'] - 1) \
+                                    .add(minutes = 45)
+        event = Event()
+        event.add('summary', course['name'])
+        event.add('location', course['room'] + ' ' + course['teacher'] )
+        event.add('dtstart', class_start_time)
+        event.add('dtend', class_end_time)
+        event.add('rrule', {
+            'freq': 'weekly',
+            'interval': course['interval'],
+            'count': (course['week_end'] + 1) // 2
+        })
+        cal.add_component(event)
+        
+    return Response(
+        cal.to_ical(), 
+        content_type='text/calendar', 
+        headers={
+            "Content-Disposition": 
+            "attachment;filename=iCal.ics"
+        }
+    )
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8000, debug=True)
