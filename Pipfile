@@ -5,13 +5,14 @@ name = "pypi"
 
 [packages]
 pytz = "==2018.7"
-njupt = ">=0.2.1"
+njupt = ">=0.2.2"
 flask = "*"
 requests = "*"
 leancloud = "*"
 icalendar = "*"
 
 [dev-packages]
+pysocks = "*"
 
 [requires]
 python_version = "3.7"
