@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "446928bd1213583644f57cafd7bf475bea623346372e7f90d83fe2031d111bdf"
+            "sha256": "e304a343dd5a368708ed6d8f40caf4632fad28664beae7eb7bfa41955bdb8ded"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -118,6 +118,14 @@
             ],
             "markers": "platform_python_implementation == 'CPython'",
             "version": "==0.4.15"
+        },
+        "icalendar": {
+            "hashes": [
+                "sha256:07c2447a1d44cbb27c90b8c6a5c98e890cc1853c6223e2a52195cddec26c6356",
+                "sha256:83f7248b7485ddd29c7d69b706b21c441e34855d9c1d888939fd24aefdd9d19b"
+            ],
+            "index": "pypi",
+            "version": "==4.0.3"
         },
         "idna": {
             "hashes": [

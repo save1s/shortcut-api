@@ -1,3 +1,4 @@
+-i https://pypi.org/simple
 arrow==0.13.1
 beautifulsoup4==4.7.1
 bs4==0.0.1
@@ -7,6 +8,7 @@ click==7.0
 flask==1.0.2
 gevent==1.4.0
 greenlet==0.4.15 ; platform_python_implementation == 'CPython'
+icalendar==4.0.3
 idna==2.8
 iso8601==0.1.12
 itsdangerous==1.1.0

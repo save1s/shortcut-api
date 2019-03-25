@@ -9,6 +9,7 @@ njupt = ">=0.2.1"
 flask = "*"
 requests = "*"
 leancloud = "*"
+icalendar = "*"
 
 [dev-packages]
 
