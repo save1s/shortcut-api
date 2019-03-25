@@ -1,5 +1,5 @@
 # save1s 捷径服务后端api
-为 shortcuts.save1s.com 中提供的捷径提供api服务。
+为 https://shortcuts.save1s.com 中提供的捷径提供api服务。
 
 ## 部署情况
 目前master分支已部署在 leancloud 的云引擎上，每次push都会 通过 webhook 触发一次部署。 
