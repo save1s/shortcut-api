@@ -38,4 +38,4 @@ def save_run_status(date, run_status):
 @engine.define
 def test_store(**params):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    save_run_status(now, RunStatusEnum.RUN)
+    save_run_status(now, RunStatusEnum.RUN.value)
