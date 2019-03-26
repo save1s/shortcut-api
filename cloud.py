@@ -1,5 +1,3 @@
-from datetime import datetime
-
 import leancloud
 from enum import Enum
 
@@ -18,7 +16,6 @@ class RunStatusEnum(Enum):
 
 def save_run_status(date, run_status):
     """
-    pass
     :param date: 日期字符串, 格式为: "2019-01-01"
     :param run_status: int 见 RunStatusEnum
     :return:
@@ -35,7 +32,12 @@ def save_run_status(date, run_status):
     run_record.save()
 
 
-@engine.define
-def test_store(**params):
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    save_run_status(now, RunStatusEnum.RUN.value)
+def get_run_status(date):
+    """
+    :param date: 日期字符串, 格式为: "2019-01-01"
+    """
+    query = RunRecord.query
+    query.equal_to('date', date)
+    run_records = query.find()
+    run_record = run_records[0]
+    return run_record.get('status')
