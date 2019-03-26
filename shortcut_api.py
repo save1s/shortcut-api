@@ -8,7 +8,8 @@ from icalendar import Calendar, Event
 from njupt import Card, Zhengfang, RunningMan
 from njupt.exceptions import AuthenticationException
 
-term_start_date = datetime(2019, 2, 18, tzinfo=pytz.timezone("Asia/Shanghai"))
+timezone = pytz.timezone("Asia/Shanghai")
+term_start_date = datetime(2019, 2, 18, tzinfo=timezone)
 
 app = Flask(__name__)
 
@@ -173,10 +174,9 @@ def check_morning_exercise():
     extra_number = exercise_dict['extra_number']
     date_list = exercise_dict['date_list']
 
-    # FIXME! NJUPT-API中return了str类型
-    total_number = int(origin_number) + int(extra_number)
+    total_number = origin_number + extra_number
 
-    # msg = ''
+    recent_records = []
     if not date_list:
         msg = '这学期还没有跑过操'
     if len(date_list) == 1:
@@ -184,6 +184,7 @@ def check_morning_exercise():
             msg = '今天只打了一次卡'
         else:
             msg = '今天没打卡'
+        recent_records.extend(date_list)
     elif len(date_list) >= 2:
         if is_same_day(date_list[0], date_list[1]) and is_today(date_list[0]):
             msg = '今天打卡了'
@@ -191,13 +192,14 @@ def check_morning_exercise():
             msg = '今天只打了一次卡'
         else:
             msg = '今天没打卡'
+        recent_records.extend(date_list[:2])
 
-    return jsonify({'total_number': total_number, 'message': msg})
+    recent_records = list(map(lambda t: t.strftime('%Y年%m月%d日 %H时%M分'), recent_records))
+    return jsonify({'total_number': total_number, 'message': msg, 'recent_records': recent_records})
 
 
-# FIXME! NJUPT-API中date_list时间正确但是时区为UTC
 def is_today(a_datetime):
-    current_date = datetime.utcnow() + timedelta(hours=8)
+    current_date = datetime.now(timezone)
     return a_datetime.date() == current_date.date()
 
 

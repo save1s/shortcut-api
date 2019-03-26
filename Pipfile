@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 pytz = "==2018.7"
-njupt = ">=0.2.2"
+njupt = ">=0.2.3"
 flask = "*"
 requests = "*"
 leancloud = "*"
