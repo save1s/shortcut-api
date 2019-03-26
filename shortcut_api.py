@@ -208,7 +208,7 @@ def is_same_day(datetime1, datetime2):
     return datetime1.date() == datetime2.date()
 
 
-@app.route("test_thread")
+@app.route("/test_thread")
 def test_thread():
     time.sleep(10)
     return "ok"
