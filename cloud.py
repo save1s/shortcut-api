@@ -39,5 +39,8 @@ def get_run_status(date):
     query = RunRecord.query
     query.equal_to('date', date)
     run_records = query.find()
-    run_record = run_records[0]
-    return run_record.get('status')
+    if run_records:
+        run_record = run_records[0]
+        return run_record.get('status')
+    else:
+        return RunStatusEnum.UNKNOWN.value
