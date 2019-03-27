@@ -1,3 +1,5 @@
+import os
+import time
 import base64
 from datetime import datetime, timedelta
 from functools import wraps
@@ -7,9 +9,11 @@ from flask import Flask, request, jsonify, Response
 from icalendar import Calendar, Event
 from njupt import Card, Zhengfang, RunningMan
 from njupt.exceptions import AuthenticationException, NjuptException
+from PIL import Image
 
 timezone = pytz.timezone("Asia/Shanghai")
 term_start_date = datetime(2019, 2, 18, tzinfo=timezone)
+
 
 app = Flask(__name__)
 
@@ -80,6 +84,15 @@ def data_access(f):
             return Result.failure(message='账号或密码有误', data=None)
 
     return wrapper
+
+
+def is_today(a_datetime):
+    current_date = datetime.now(timezone)
+    return a_datetime.date() == current_date.date()
+
+
+def is_same_day(datetime1, datetime2):
+    return datetime1.date() == datetime2.date()
 
 
 @app.route("/")
@@ -188,12 +201,12 @@ def zhengfang_courses_ical():
     cal.add('version', '2.0')
     for course in courses:
         class_start_time = ClassTime.get(course['class_start'], 1) \
-                           + timedelta(days=course['day'] - 1) \
-                           + timedelta(weeks=course['week_start'] - 1)
+            + timedelta(days=course['day'] - 1) \
+            + timedelta(weeks=course['week_start'] - 1)
         class_end_time = ClassTime.get(course['class_end'], 2) \
-                         + timedelta(days=course['day'] - 1) \
-                         + timedelta(weeks=course['week_start'] - 1) \
-                         + timedelta(minutes=45)
+            + timedelta(days=course['day'] - 1) \
+            + timedelta(weeks=course['week_start'] - 1) \
+            + timedelta(minutes=45)
         event = Event()
         event.add('summary', course['name'])
         event.add('location', course['room'] + ' ' + course['teacher'])
@@ -241,7 +254,8 @@ def check_morning_exercise():
             msg = '今天没打卡'
         recent_records.extend(date_list[:2])
 
-    recent_records = list(map(lambda t: t.strftime('%Y年%m月%d日 %H时%M分'), recent_records))
+    recent_records = list(
+        map(lambda t: t.strftime('%Y年%m月%d日 %H时%M分'), recent_records))
     return Result.success(
         message=msg,
         data={
@@ -251,13 +265,9 @@ def check_morning_exercise():
     )
 
 
-def is_today(a_datetime):
-    current_date = datetime.now(timezone)
-    return a_datetime.date() == current_date.date()
-
-
-def is_same_day(datetime1, datetime2):
-    return datetime1.date() == datetime2.date()
+@app.route('/run')
+def check_running():
+    pass
 
 
 if __name__ == "__main__":

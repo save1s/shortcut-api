@@ -8,9 +8,13 @@ njupt = ">=0.2.3"
 flask = "*"
 leancloud = "*"
 icalendar = "*"
+pip = "*"
+pillow = "*"
+selenium = "*"
 
 [dev-packages]
 pysocks = "*"
+autopep8 = "*"
 
 [requires]
 python_version = "3.7"

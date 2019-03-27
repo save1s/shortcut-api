@@ -1,12 +1,22 @@
+import os
+import time
 import leancloud
 from enum import Enum
+from datetime import datetime
+from utils import qzone_login
+from utils import qzone
 
-from leancloud import Engine
 
-engine = Engine()
+engine = leancloud.Engine()
 
 RunRecord = leancloud.Object.extend('RunRecord')
-QQCookies = leancloud.Object.extend('QQCookies')
+Config = leancloud.Object.extend('Config')
+
+today = datetime.today().strftime('%Y-%m-%d')  # '2019-03-27'
+
+QQ_NUMBER = os.environ['LEANCLOUD_QQ_NUMBER']
+QQ_PASSWORD = os.environ['LEANCLOUD_QQ_PASSWORD']
+TARGET_QQ = os.environ['LEANCLOUD_TARGET_QQ'] or 2563280140
 
 
 class RunStatusEnum(Enum):
@@ -47,36 +57,77 @@ def get_run_status(date):
         return RunStatusEnum.UNKNOWN.value
 
 
-def save_qq_cookies(date, cookies):
+def save_qq_cookies(cookies):
     """
-
-    :param date: 如 "2019-01-01"
     :param cookies: dict
     :return:
     """
-    query = QQCookies.query
-    query.equal_to('date', date)
-    qq_cookies_list = query.find()
-    if qq_cookies_list:
-        qq_cookies = qq_cookies_list[0]
-    else:
-        qq_cookies = QQCookies()
-        qq_cookies.set('date', date)
-    qq_cookies.set('cookies', cookies)
-    qq_cookies.save()
+    query = Config.query
+    query.equal_to('key', 'qq_cookies')
+    config = query.first()
+    config.set('value', cookies)
+    config.save()
 
 
-def get_qq_cookies(date):
+def fetch_qq_cookies():
+    query = Config.query
+    query.equal_to('key', 'qq_cookies')
+    config = query.first()
+    return config.get('value')
+
+
+@engine.define
+def init_qq_cookies():
+    cookies = {}
+    cookies = qzone_login.login(QQ_NUMBER, QQ_PASSWORD)
+    if not cookies.get('p_skey'):
+        leancloud.logger.critical('获取cookie失败')
+    save_qq_cookies(cookies)
+
+
+@engine.define
+def check_run():
+    cookies = fetch_qq_cookies()
+    q = qzone.Qzone(**cookies)
+    shuoshuo = q.emotion_list(TARGET_QQ, num=1)
+    result = run(shuoshuo[0].url)
+    save_run_status(today, result)
+
+
+def run(url):
     """
-
-    :param date:
-    :return:
+    判断url的图片， 是跑还是不跑
+    :param url:
+    :return: 跑：1, 不跑 2, 不知道: 0
     """
-    query = QQCookies.query
-    query.equal_to('date', date)
-    qq_cookies_list = query.find()
-    if qq_cookies_list:
-        qq_cookies = qq_cookies_list[0]
-        return qq_cookies.get('cookies')
-    else:
-        return {}
+    WHITE = 255
+    BLACK = 0
+    pic = qzone.Picture(url)
+    image = Image.open(pic.open()).resize((100, 100)).convert('L')
+    pixels = image.load()
+    for x in range(image.width):
+        for y in range(image.height):
+            pixels[x, y] = BLACK if pixels[x, y] < 20 else WHITE
+
+    valid_picture_feature_points = []
+    for x in range(image.width):
+        valid_picture_feature_points.append(pixels[x, 1] == WHITE)
+
+    if not all(valid_picture_feature_points):
+        return 0
+
+    not_run_feature_points = []
+    for x in range(10, 47):
+        for y in range(34, 37):
+            not_run_feature_points.append(pixels[x, y] == BLACK)
+    if all(not_run_feature_points):
+        return 2
+
+    run_feature_points = []
+    for x in range(55, 76):
+        for y in range(75, 79):
+            run_feature_points.append(pixels[x, y] == BLACK)
+    if all(run_feature_points):
+        return 1
+
+    return 0
