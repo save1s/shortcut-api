@@ -3,6 +3,7 @@
 import os
 import time
 
+import leancloud
 from selenium import webdriver
 SELENIUM_SERVER_ADDRESS = os.environ['SELENIUM_SERVER_ADDRESS']
 
@@ -18,6 +19,7 @@ def login(qq_number, qq_password):
                               desired_capabilities=option.to_capabilities())
     # driver.set_window_size(1920, 1080)
     driver.get('http://i.qq.com/')
+    leancloud.logger.info("got i.qq.com")
     driver.switch_to.frame('login_frame')
     driver.find_element_by_id('switcher_plogin').click()
     driver.find_element_by_name('u').clear()
@@ -25,7 +27,9 @@ def login(qq_number, qq_password):
     driver.find_element_by_name('p').clear()
     driver.find_element_by_name('p').send_keys(qq_password)
     driver.find_element_by_id('login_button').click()
-    time.sleep(120)
+    leancloud.logger.info("click login button. time to sleep 30 secs.")
+    time.sleep(30)
+    leancloud.logger.info("awake. try to get cookies")
     cookies = {c["name"]: c["value"] for c in driver.get_cookies()}
     driver.close()
     return cookies
