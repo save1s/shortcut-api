@@ -94,6 +94,15 @@ def check_run():
     save_run_status(today, result)
 
 
+@engine.define
+def test_object_store():
+    date = datetime.now().strftime('%Y-%m-%d')
+    res_type = type(get_qq_cookies(date))
+    cookies = {"now": datetime.now().strftime(
+        '%Y年%m月%d日 %H时%M分'), 'type': str(res_type)}
+    save_qq_cookies(cookies=cookies, date=date)
+
+
 def run(url):
     """
     判断url的图片， 是跑还是不跑
