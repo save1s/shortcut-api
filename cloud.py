@@ -6,6 +6,7 @@ from leancloud import Engine
 engine = Engine()
 
 RunRecord = leancloud.Object.extend('RunRecord')
+QQCookies = leancloud.Object.extend('QQCookies')
 
 
 class RunStatusEnum(Enum):
@@ -44,3 +45,38 @@ def get_run_status(date):
         return run_record.get('status')
     else:
         return RunStatusEnum.UNKNOWN.value
+
+
+def save_qq_cookies(date, cookies):
+    """
+
+    :param date: 如 "2019-01-01"
+    :param cookies: dict
+    :return:
+    """
+    query = QQCookies.query
+    query.equal_to('date', date)
+    qq_cookies_list = query.find()
+    if qq_cookies_list:
+        qq_cookies = qq_cookies_list[0]
+    else:
+        qq_cookies = QQCookies()
+        qq_cookies.set('date', date)
+    qq_cookies.set('cookies', cookies)
+    qq_cookies.save()
+
+
+def get_qq_cookies(date):
+    """
+
+    :param date:
+    :return:
+    """
+    query = QQCookies.query
+    query.equal_to('date', date)
+    qq_cookies_list = query.find()
+    if qq_cookies_list:
+        qq_cookies = qq_cookies_list[0]
+        return qq_cookies.get('cookies')
+    else:
+        return {}
