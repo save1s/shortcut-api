@@ -1,5 +1,3 @@
-import os
-import time
 import base64
 from datetime import datetime, timedelta
 from functools import wraps
@@ -9,9 +7,10 @@ from icalendar import Calendar, Event
 from njupt import Card, Zhengfang, RunningMan
 from njupt.exceptions import AuthenticationException, NjuptException
 
+from utils.store import get_run_status, RunStatusEnum
+
 timezone = pytz.timezone("Asia/Shanghai")
 term_start_date = datetime(2019, 2, 18, tzinfo=timezone)
-
 
 app = Flask(__name__)
 
@@ -199,12 +198,12 @@ def zhengfang_courses_ical():
     cal.add('version', '2.0')
     for course in courses:
         class_start_time = ClassTime.get(course['class_start'], 1) \
-            + timedelta(days=course['day'] - 1) \
-            + timedelta(weeks=course['week_start'] - 1)
+                           + timedelta(days=course['day'] - 1) \
+                           + timedelta(weeks=course['week_start'] - 1)
         class_end_time = ClassTime.get(course['class_end'], 2) \
-            + timedelta(days=course['day'] - 1) \
-            + timedelta(weeks=course['week_start'] - 1) \
-            + timedelta(minutes=45)
+                         + timedelta(days=course['day'] - 1) \
+                         + timedelta(weeks=course['week_start'] - 1) \
+                         + timedelta(minutes=45)
         event = Event()
         event.add('summary', course['name'])
         event.add('location', course['room'] + ' ' + course['teacher'])
@@ -263,9 +262,14 @@ def check_morning_exercise():
     )
 
 
-@app.route('/run')
+@app.route('/check_running')
 def check_running():
-    pass
+    status = get_run_status(datetime.now(timezone).strftime("%Y-%m-%d"))
+    if status == RunStatusEnum.RUN:
+        return Result.success(message="跑", data=None)
+    if status == RunStatusEnum.NOT_RUN:
+        return Result.success(message="不跑", data=None)
+    return Result.success(message="我也不知道", data=None)
 
 
 if __name__ == "__main__":
