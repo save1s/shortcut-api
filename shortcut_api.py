@@ -1,5 +1,4 @@
 import base64
-import time
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -206,12 +205,6 @@ def is_today(a_datetime):
 
 def is_same_day(datetime1, datetime2):
     return datetime1.date() == datetime2.date()
-
-
-@app.route("/test_thread")
-def test_thread():
-    time.sleep(10)
-    return "ok"
 
 
 if __name__ == "__main__":
