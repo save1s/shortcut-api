@@ -2,7 +2,7 @@
 为 https://shortcuts.save1s.com 中提供的捷径提供api服务。
 
 ## 部署情况
-目前master分支已部署在 leancloud 的云引擎上，每次push都会 通过 webhook 触发一次部署。 
+目前 master 分支已部署在 leancloud 的云引擎上，每次 push 都会 通过 webhook 触发一次部署。 
 
 服务部署地址： https://shortcut-api.leanapp.cn
 
@@ -14,3 +14,10 @@
 3. 服务部署在 leancloud，leancloud 的访问日志不会记录你 POST 的信息。
 
 如果你仍然有所顾虑，你可以自行部署这个服务，然后在捷径中修改服务地址即可。
+
+
+## 依赖
+尽可能的少依赖
+- [Flask](http://flask.pocoo.org/)
+- [NJUPT-API](https://github.com/gaoliang/NJUPT-API)
+- [icalendar](https://github.com/collective/icalendar])

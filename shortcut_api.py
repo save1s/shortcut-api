@@ -6,7 +6,7 @@ import pytz
 from flask import Flask, request, jsonify, Response
 from icalendar import Calendar, Event
 from njupt import Card, Zhengfang, RunningMan
-from njupt.exceptions import AuthenticationException
+from njupt.exceptions import AuthenticationException, NjuptException
 
 timezone = pytz.timezone("Asia/Shanghai")
 term_start_date = datetime(2019, 2, 18, tzinfo=timezone)
@@ -29,6 +29,39 @@ ClassTime = {
 }
 
 
+@app.errorhandler(NjuptException)
+def all_exception_handler(e):
+    app.logger.exception(e)
+    return Result.failure(message="NJUPT接口请求异常, 请重试", data={'error': str(e)})
+
+
+class Result:
+
+    @classmethod
+    def result(cls, success, message, data):
+        return jsonify({
+            'success': success,
+            'message': message,
+            'data': data,
+        })
+
+    @classmethod
+    def success(cls, message, data):
+        return cls.result(
+            success=True,
+            message=message,
+            data=data
+        )
+
+    @classmethod
+    def failure(cls, message, data):
+        return cls.result(
+            success=False,
+            message=message,
+            data=data
+        )
+
+
 def data_access(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
@@ -44,16 +77,17 @@ def data_access(f):
             #     raise Exception
             return f()
         except AuthenticationException:
-            return jsonify({'success': False, 'message': '账号或密码有误', 'data': {}})
-        except Exception as e:
-            return jsonify({'success': False, 'message': e, 'data': {}})
+            return Result.failure(message='账号或密码有误', data=None)
 
     return wrapper
 
 
 @app.route("/")
 def test():
-    return "A save1s.com project."
+    return Result.success(
+        message="A save1s project.",
+        data={'url': 'https://github.com/save1s'}
+    )
 
 
 @app.route("/base64/<string>")
@@ -72,27 +106,37 @@ def base64_decode(string):
 @app.route("/card/balance", methods=['POST'])
 @data_access
 def card_balance():
-    return jsonify(request.card.get_balance())
+    return Result.success(message='查询成功', data=request.card.get_balance())
 
 
 @app.route("/card/recharge", methods=['POST'])
 @data_access
 def card_recharge():
     amount = float(request.form['amount'])
-    return jsonify(request.card.recharge(amount=amount))
+    result = request.card.recharge(amount=amount)
+    return Result.result(
+        success=result['success'],
+        message=result['msg'],
+        data=None
+    )
 
 
 @app.route('/card/net_balance', methods=['POST'])
 @data_access
 def card_net_balance():
-    return jsonify(request.card.get_net_balance())
+    return Result.success(message='查询成功', data=request.card.get_net_balance())
 
 
 @app.route('/card/recharge_net', methods=['POST'])
 @data_access
 def card_recharge_net():
     amount = float(request.form['amount'])
-    return jsonify(request.card.recharge_net(amount=amount))
+    result = request.card.recharge_net(amount=amount)
+    return Result.result(
+        success=result['success'],
+        message=result['msg'],
+        data=None
+    )
 
 
 @app.route('/card/recharge_elec', methods=['POST'])
@@ -109,11 +153,11 @@ def card_recharge_elec():
             building_name=building,
             room_id="{}{}".format(big_room_id, small_room_id)
         )
-        return jsonify({
-            'success': result['success'],
-            'data': {},
-            'message': result['msg'],
-        })
+        return Result.result(
+            success=result['success'],
+            message=result['msg'],
+            data=None
+        )
     if school_area == "仙林":
         result = request.card.recharge_xianlin_elec(
             amount=amount,
@@ -121,12 +165,12 @@ def card_recharge_elec():
             big_room_id=big_room_id,
             small_room_id=small_room_id
         )
-        return jsonify({
-            'success': result['success'],
-            'data': {},
-            'message': result['msg'],
-        })
-    return jsonify({'success': False, 'message': '错误的校区', 'data': {}})
+        return Result.result(
+            success=result['success'],
+            message=result['msg'],
+            data=None
+        )
+    return Result.failure(message='错误的校区', data=None)
 
 
 @app.route('/zhengfang/courses', methods=['POST'])
@@ -169,7 +213,10 @@ def check_morning_exercise():
     student_id = request.form['student_id']
     name = request.form['name']
     running_man = RunningMan(student_id, name)
-    exercise_dict = running_man.check()
+    try:
+        exercise_dict = running_man.check()
+    except AuthenticationException as e:
+        return Result.failure(message=str(e), data=None)
     origin_number = exercise_dict['origin_number']
     extra_number = exercise_dict['extra_number']
     date_list = exercise_dict['date_list']
@@ -195,7 +242,13 @@ def check_morning_exercise():
         recent_records.extend(date_list[:2])
 
     recent_records = list(map(lambda t: t.strftime('%Y年%m月%d日 %H时%M分'), recent_records))
-    return jsonify({'total_number': total_number, 'message': msg, 'recent_records': recent_records})
+    return Result.success(
+        message=msg,
+        data={
+            'total_number': total_number,
+            'recent_records': recent_records
+        }
+    )
 
 
 def is_today(a_datetime):
