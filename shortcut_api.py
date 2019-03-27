@@ -3,13 +3,11 @@ import time
 import base64
 from datetime import datetime, timedelta
 from functools import wraps
-
 import pytz
 from flask import Flask, request, jsonify, Response
 from icalendar import Calendar, Event
 from njupt import Card, Zhengfang, RunningMan
 from njupt.exceptions import AuthenticationException, NjuptException
-from PIL import Image
 
 timezone = pytz.timezone("Asia/Shanghai")
 term_start_date = datetime(2019, 2, 18, tzinfo=timezone)

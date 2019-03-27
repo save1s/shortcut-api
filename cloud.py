@@ -16,7 +16,7 @@ today = datetime.today().strftime('%Y-%m-%d')  # '2019-03-27'
 
 QQ_NUMBER = os.environ['LEANCLOUD_QQ_NUMBER']
 QQ_PASSWORD = os.environ['LEANCLOUD_QQ_PASSWORD']
-TARGET_QQ = os.environ['LEANCLOUD_TARGET_QQ'] or 2563280140
+TARGET_QQ = os.environ.get('LEANCLOUD_TARGET_QQ', 2563280140)
 
 
 class RunStatusEnum(Enum):
