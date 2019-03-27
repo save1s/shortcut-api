@@ -88,5 +88,5 @@ def get_qq_cookies(date):
 def test_object_store():
     date = datetime.now().strftime('%Y-%m-%d')
     res_type = type(get_qq_cookies(date))
-    cookies = {"now": datetime.now().strftime('%Y年%m月%d日 %H时%M分'), 'type': res_type}
+    cookies = {"now": datetime.now().strftime('%Y年%m月%d日 %H时%M分'), 'type': str(res_type)}
     save_qq_cookies(cookies=cookies, date=date)
