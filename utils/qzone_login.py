@@ -30,7 +30,7 @@ def login(qq_number, qq_password):
     driver.find_element_by_name('p').send_keys(qq_password)
     driver.find_element_by_id('login_button').click()
     leancloud.logger.info("click login button. time to sleep 30 secs.")
-    time.sleep(30)
+    time.sleep(120)
     leancloud.logger.info("awake. try to get cookies")
     cookies = {c["name"]: c["value"] for c in driver.get_cookies()}
     driver.close()
