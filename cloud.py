@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import leancloud
 from enum import Enum
 
@@ -80,3 +82,11 @@ def get_qq_cookies(date):
         return qq_cookies.get('cookies')
     else:
         return {}
+
+
+@engine.define
+def test_object_store():
+    date = datetime.now().strftime('%Y-%m-%d')
+    res_type = type(get_qq_cookies(date))
+    cookies = {"now": datetime.now().strftime('%Y年%m月%d日 %H时%M分'), 'type': res_type}
+    save_qq_cookies(cookies=cookies, date=date)
