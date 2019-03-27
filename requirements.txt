@@ -13,12 +13,12 @@ iso8601==0.1.12
 itsdangerous==1.1.0
 jinja2==2.10
 leancloud==2.1.10
-lxml==4.3.2
+lxml==4.3.3
 markupsafe==1.1.1
 njupt==0.2.3
 pillow==5.4.1
 python-dateutil==2.8.0
-pytz==2018.7
+pytz==2018.9
 qiniu==7.2.2
 requests==2.21.0
 six==1.12.0
