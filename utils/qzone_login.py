@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import logging
 import os
 import time
 
@@ -7,6 +8,7 @@ import leancloud
 from selenium import webdriver
 SELENIUM_SERVER_ADDRESS = os.environ['SELENIUM_SERVER_ADDRESS']
 
+leancloud.logger.setLevel(logging.INFO)
 
 def login(qq_number, qq_password):
 
